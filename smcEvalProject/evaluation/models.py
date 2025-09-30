@@ -1,8 +1,9 @@
 from django.db import models
 from django.conf import settings
 
+
 class Teacher(models.Model):
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, unique=True)
     college = models.CharField(max_length=255)
     subject = models.CharField(max_length=255)
     room_number = models.CharField(max_length=50)
@@ -12,9 +13,13 @@ class Teacher(models.Model):
 
 
 class Evaluation(models.Model):
-    teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE)
+    teacher_name = models.CharField(max_length=255, null=True, blank=True)
+    college = models.CharField(max_length=255, null=True, blank=True)
+    subject = models.CharField(max_length=255, null=True, blank=True)
+    room_number = models.CharField(max_length=50, null=True, blank=True)
+
     evaluator = models.ForeignKey(
-        settings.AUTH_USER_MODEL,   
+        settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
         null=True,
         blank=True
@@ -23,9 +28,13 @@ class Evaluation(models.Model):
     time_of_observation = models.TimeField()
     other_comments = models.TextField(blank=True)
 
-    def __str__(self):
-        return f"Evaluation for {self.teacher.name} ({self.date})"
+    average_rating = models.FloatField(null=True, blank=True)
 
+    date_of_conference = models.DateField(null=True, blank=True)
+    time_of_conference = models.TimeField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.teacher_name} ({self.date})"
 
 
 class Question(models.Model):
@@ -53,13 +62,15 @@ RATING_CHOICES = [
 
 
 class Response(models.Model):
-    evaluation = models.ForeignKey(Evaluation, on_delete=models.CASCADE, related_name="responses")
+    evaluation = models.ForeignKey(
+        Evaluation, on_delete=models.CASCADE, related_name="responses"
+    )
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     rating = models.IntegerField(choices=RATING_CHOICES, null=True, blank=True)
     remarks = models.TextField(blank=True)
 
     class Meta:
-        unique_together = ('evaluation', 'question')  
+        unique_together = ("evaluation", "question")
 
     def __str__(self):
         return f"{self.evaluation} - {self.question}"
