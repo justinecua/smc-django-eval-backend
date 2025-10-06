@@ -9,7 +9,7 @@ class QuestionSerializer(serializers.ModelSerializer):
 
 
 class ResponseSerializer(serializers.ModelSerializer):
-    question = QuestionSerializer(read_only=True)
+    question = serializers.PrimaryKeyRelatedField(queryset=Question.objects.all())
 
     class Meta:
         model = Response
@@ -17,7 +17,8 @@ class ResponseSerializer(serializers.ModelSerializer):
 
 
 class EvaluationSerializer(serializers.ModelSerializer):
-    responses = ResponseSerializer(many=True, read_only=True)
+    # remove read_only=True so we can create nested responses
+    responses = ResponseSerializer(many=True)
 
     class Meta:
         model = Evaluation
@@ -33,7 +34,7 @@ class EvaluationSerializer(serializers.ModelSerializer):
             "average_rating",
             "date_of_conference",
             "time_of_conference",
-            "responses",  
+            "responses",
         ]
 
     def create(self, validated_data):
@@ -42,8 +43,9 @@ class EvaluationSerializer(serializers.ModelSerializer):
 
         total = 0
         count = 0
+
         for response_data in responses_data:
-            rating = response_data.get("rating")
+            rating = response_data.get("rating", 0)
             if rating and rating > 0:
                 total += rating
                 count += 1
