@@ -8,7 +8,17 @@ class QuestionSerializer(serializers.ModelSerializer):
         fields = ["id", "text", "category"]
 
 
-class ResponseSerializer(serializers.ModelSerializer):
+# --- For reading (GET) ---
+class ResponseReadSerializer(serializers.ModelSerializer):
+    question = QuestionSerializer(read_only=True)
+
+    class Meta:
+        model = Response
+        fields = ["id", "question", "rating", "remarks"]
+
+
+# --- For writing (POST/CREATE) ---
+class ResponseWriteSerializer(serializers.ModelSerializer):
     question = serializers.PrimaryKeyRelatedField(queryset=Question.objects.all())
 
     class Meta:
@@ -17,8 +27,8 @@ class ResponseSerializer(serializers.ModelSerializer):
 
 
 class EvaluationSerializer(serializers.ModelSerializer):
-    # remove read_only=True so we can create nested responses
-    responses = ResponseSerializer(many=True)
+    responses = ResponseWriteSerializer(many=True, write_only=True)
+    responses_detail = ResponseReadSerializer(many=True, read_only=True, source="responses")
 
     class Meta:
         model = Evaluation
@@ -34,13 +44,13 @@ class EvaluationSerializer(serializers.ModelSerializer):
             "average_rating",
             "date_of_conference",
             "time_of_conference",
-            "responses",
+            "responses",         # for POST
+            "responses_detail",  # for GET
         ]
 
     def create(self, validated_data):
         responses_data = validated_data.pop("responses", [])
         evaluation = Evaluation.objects.create(**validated_data)
-
         total = 0
         count = 0
 
