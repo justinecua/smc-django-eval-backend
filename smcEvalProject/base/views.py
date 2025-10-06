@@ -3,7 +3,7 @@ from django.contrib.auth import get_user_model
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 from .serializer import UserSerializer
 
 User = get_user_model()
@@ -36,3 +36,19 @@ def login_view(request):
 @permission_classes([IsAuthenticated])
 def profile_view(request):
     return Response(UserSerializer(request.user).data)
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def logout_view(request):
+    try:
+        refresh_token = request.data.get("refresh")
+        if not refresh_token:
+            return Response({"error": "Refresh token is required"}, status=400)
+
+        token = RefreshToken(refresh_token)
+        token.blacklist()
+
+        return Response({"success": "Logged out successfully"}, status=200)
+
+    except TokenError:
+        return Response({"error": "Invalid or expired token"}, status=400)

@@ -49,7 +49,9 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework_simplejwt",
     'evaluation',
-    'base'
+    'base',
+    'consultation',
+    'rest_framework_simplejwt.token_blacklist',
 ]
 
 MIDDLEWARE = [
@@ -168,3 +170,6 @@ SIMPLE_JWT = {
     "ROTATE_REFRESH_TOKENS": False,
     "BLACKLIST_AFTER_ROTATION": True,
 }
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
