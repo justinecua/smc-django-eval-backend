@@ -9,7 +9,6 @@ class QuestionSerializer(serializers.ModelSerializer):
 
 
 class ResponseSerializer(serializers.ModelSerializer):
-    # expand question info instead of just pk
     question = QuestionSerializer(read_only=True)
 
     class Meta:
@@ -34,7 +33,7 @@ class EvaluationSerializer(serializers.ModelSerializer):
             "average_rating",
             "date_of_conference",
             "time_of_conference",
-            "responses",   # now each response has full question info
+            "responses",  
         ]
 
     def create(self, validated_data):
