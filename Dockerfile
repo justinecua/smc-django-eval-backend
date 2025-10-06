@@ -1,16 +1,21 @@
-FROM python:3.12-slim
-
-WORKDIR /code
-
-RUN apt-get update && apt-get install -y build-essential libpq-dev && rm -rf /var/lib/apt/lists/*
-
-COPY app/requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
-COPY app .
-
-ENV DJANGO_SETTINGS_MODULE=smcEvalProject.settings
-
+FROM ubuntu:20.04
+RUN apt-get update
+RUN apt-get install -y software-properties-common
+RUN add-apt-repository ppa:deadsnakes/ppa
+RUN apt-get install -y python3.9
+RUN python3.9 --version
+RUN apt-get install -y python3.9-dev build-essential
+RUN apt-get install -y python3-dev default-libmysqlclient-dev build-essential
+RUN apt-get install -y libssl1.1
+RUN apt-get install -y libssl-dev
+RUN apt-get install -y libmysqlclient-dev
+RUN ln /usr/bin/python3.9 /usr/bin/python
+RUN apt-get install -y python3-pip
+RUN pip install --upgrade pip
+ENV PYTHONUNBUFFERED=1
+WORKDIR /api
+COPY requirements.txt /api/
+RUN pip install -r requirements.txt
+COPY . /api/
+RUN apt-get install -y apt-utils vim curl
 EXPOSE 8000
-
-CMD ["gunicorn", "smcEvalProject.wsgi:application", "--bind", "0.0.0.0:8000"]
