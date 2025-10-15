@@ -1,14 +1,11 @@
 from rest_framework import serializers
 from .models import Evaluation, Response, Question
 
-
 class QuestionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Question
         fields = ["id", "text", "category"]
 
-
-# --- For reading (GET) ---
 class ResponseReadSerializer(serializers.ModelSerializer):
     question = QuestionSerializer(read_only=True)
 
@@ -16,8 +13,6 @@ class ResponseReadSerializer(serializers.ModelSerializer):
         model = Response
         fields = ["id", "question", "rating", "remarks"]
 
-
-# --- For writing (POST/CREATE) ---
 class ResponseWriteSerializer(serializers.ModelSerializer):
     question = serializers.PrimaryKeyRelatedField(queryset=Question.objects.all())
 
@@ -25,10 +20,11 @@ class ResponseWriteSerializer(serializers.ModelSerializer):
         model = Response
         fields = ["id", "question", "rating", "remarks"]
 
-
 class EvaluationSerializer(serializers.ModelSerializer):
     responses = ResponseWriteSerializer(many=True, write_only=True)
     responses_detail = ResponseReadSerializer(many=True, read_only=True, source="responses")
+    evaluator_first_name = serializers.CharField(source="evaluator.first_name", read_only=True)
+    evaluator_last_name = serializers.CharField(source="evaluator.last_name", read_only=True)
 
     class Meta:
         model = Evaluation
@@ -44,9 +40,12 @@ class EvaluationSerializer(serializers.ModelSerializer):
             "average_rating",
             "date_of_conference",
             "time_of_conference",
-            "responses",         # for POST
-            "responses_detail",  # for GET
+            "evaluator_first_name",
+            "evaluator_last_name", 
+            "responses",
+            "responses_detail",
         ]
+
 
     def create(self, validated_data):
         responses_data = validated_data.pop("responses", [])
