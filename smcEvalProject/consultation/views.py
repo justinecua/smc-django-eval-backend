@@ -85,19 +85,17 @@ def download_consultation_pdf(request, pk):
     try:
         consultation = Consultation.objects.get(pk=pk, user=request.user)
     except Consultation.DoesNotExist:
-        return Response({"error": "Not found"}, status=404)
+        return HttpResponse("Not found", status=404)
 
     template_path = os.path.join(settings.MEDIA_ROOT, "forms", "Consultation.pdf")
     if not os.path.exists(template_path):
-        return Response({"error": "Template PDF not found"}, status=500)
+        return HttpResponse("Template PDF not found", status=500)
 
     template_reader = PdfReader(open(template_path, "rb"))
     template_page = template_reader.pages[0]
 
-    page_size = A4  
-
     packet = io.BytesIO()
-    can = canvas.Canvas(packet, pagesize=page_size)
+    can = canvas.Canvas(packet, pagesize=A4)
     can.setFont("Helvetica", 10)
 
     can.drawString(107, 795, consultation.college or "")
@@ -116,10 +114,10 @@ def download_consultation_pdf(request, pk):
     can.drawString(460, 620, consultation.term or "")
     can.drawString(120, 600, consultation.subject_grade or "")
 
-    draw_wrapped_text(can, consultation.difficulties_identified or "N/A", 52, 550, max_width=236)
-    draw_wrapped_text(can, consultation.remarks or "N/A", 325, 550, max_width=236)
-    draw_wrapped_text(can, consultation.learning_assistance or "N/A", 52, 425, max_width=505)
-    draw_wrapped_text(can, consultation.resolution or "N/A", 52, 275, max_width=505)
+    draw_wrapped_text(can, consultation.difficulties_identified or "N/A", 52, 550, 236)
+    draw_wrapped_text(can, consultation.remarks or "N/A", 325, 550, 236)
+    draw_wrapped_text(can, consultation.learning_assistance or "N/A", 52, 425, 505)
+    draw_wrapped_text(can, consultation.resolution or "N/A", 52, 275, 505)
 
     can.save()
     packet.seek(0)
@@ -135,3 +133,4 @@ def download_consultation_pdf(request, pk):
     response["Content-Disposition"] = f'attachment; filename="consultation_{pk}.pdf"'
     writer.write(response)
     return response
+

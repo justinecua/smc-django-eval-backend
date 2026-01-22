@@ -10,6 +10,7 @@ User = get_user_model()
 
 @api_view(["POST"])
 def login_view(request):
+    print("🔥 HIT CUSTOM LOGIN VIEW 🔥", request.data)
     username = request.data.get("username")
     password = request.data.get("password")
 
