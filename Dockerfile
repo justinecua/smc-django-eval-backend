@@ -14,7 +14,7 @@ RUN apt-get install -y python3-pip
 RUN pip install --upgrade pip
 ENV PYTHONUNBUFFERED=1
 WORKDIR /api
-COPY requirements.txt /api/
+COPY smcEvalProject/requirements.txt /api/requirements.txt
 RUN pip install -r requirements.txt
 COPY . /api/
 RUN apt-get install -y apt-utils vim curl

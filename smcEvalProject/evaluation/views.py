@@ -15,6 +15,9 @@ from reportlab.lib.pagesizes import A4
 from django.conf import settings
 from .models import Evaluation, Response
 from reportlab.pdfbase.pdfmetrics import stringWidth
+from reportlab.platypus import Paragraph
+from reportlab.lib.styles import getSampleStyleSheet
+from django.http import JsonResponse
 
 
 @api_view(["POST"])
@@ -57,8 +60,6 @@ def get_evaluation_detail(request, pk):
     
     serializer = EvaluationSerializer(evaluation)
     return DRFResponse(serializer.data, status=status.HTTP_200_OK)
-
-
 
 def draw_paragraph(can, text, x, y, max_width, max_height):
     styles = getSampleStyleSheet()
