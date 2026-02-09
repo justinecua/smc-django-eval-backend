@@ -182,10 +182,3 @@ CORS_ALLOW_ALL_ORIGINS = True
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = Path(
-    os.getenv(
-        "MEDIA_ROOT",
-        BASE_DIR / "smcEvalProject" / "media"
-    )
-)
